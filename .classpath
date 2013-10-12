@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="ca/thurn/stub/com/jayway/awaitility/|ca/thurn/stub/com/jayway/|ca/thurn/stub/com/|ca/thurn/stub/" kind="src" path="src"/>
+	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/awaitility-1.3.5-javadoc.jar"/>
+	<classpathentry kind="lib" path="lib/awaitility-1.3.5-sources.jar"/>
+	<classpathentry kind="lib" path="lib/awaitility-1.3.5.jar" sourcepath="lib/awaitility-1.3.5-sources.jar"/>
+	<classpathentry kind="lib" path="lib/cglib-nodep-2.2.jar"/>
+	<classpathentry kind="lib" path="lib/objenesis-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/hamcrest-core-1.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/hamcrest-library-1.2.1.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="output" path="war/WEB-INF/classes"/>
+</classpath>
