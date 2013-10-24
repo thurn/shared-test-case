@@ -3,6 +3,7 @@ package ca.thurn.gwt;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -166,7 +167,7 @@ public abstract class SharedGWTTestCase extends GWTTestCase {
   public static void assertTrue(boolean condition) {
     try {
       Assert.assertTrue(condition);
-    } catch (AssertionError afe) {
+    } catch (Throwable afe) {
       throw new RuntimeException(afe);
     }
   }
@@ -174,7 +175,7 @@ public abstract class SharedGWTTestCase extends GWTTestCase {
   public static void assertFalse(boolean condition) {
     try {
       Assert.assertFalse(condition);
-    } catch (AssertionError afe) {
+    } catch (Throwable afe) {
       throw new RuntimeException(afe);
     }
   }
@@ -182,7 +183,7 @@ public abstract class SharedGWTTestCase extends GWTTestCase {
   public static void assertTrue(String msg, boolean condition) {
     try {
       Assert.assertTrue(msg, condition);
-    } catch (AssertionError afe) {
+    } catch (Throwable afe) {
       throw new RuntimeException(afe);
     }
   }
@@ -190,7 +191,7 @@ public abstract class SharedGWTTestCase extends GWTTestCase {
   public static void assertFalse(String msg, boolean condition) {
     try {
       Assert.assertFalse(msg, condition);
-    } catch (AssertionError afe) {
+    } catch (Throwable afe) {
       throw new RuntimeException(afe);
     }
   }
@@ -198,7 +199,7 @@ public abstract class SharedGWTTestCase extends GWTTestCase {
   public static void assertEquals(String s1, String s2) {
     try {
       Assert.assertEquals(s1, s2);
-    } catch (AssertionError afe) {
+    } catch (Throwable afe) {
       throw new RuntimeException(afe);
     }
   }
@@ -206,7 +207,7 @@ public abstract class SharedGWTTestCase extends GWTTestCase {
   public static void assertEquals(int i1, int i2) {
     try {
       Assert.assertEquals(i1, i2);
-    } catch (AssertionError afe) {
+    } catch (Throwable afe) {
       throw new RuntimeException(afe);
     }
   }
@@ -214,7 +215,7 @@ public abstract class SharedGWTTestCase extends GWTTestCase {
   public static void assertEquals(long l1, long l2) {
     try {
       Assert.assertEquals(l1, l2);
-    } catch (AssertionError afe) {
+    } catch (Throwable afe) {
       throw new RuntimeException(afe);
     }
   }
@@ -222,7 +223,7 @@ public abstract class SharedGWTTestCase extends GWTTestCase {
   public static void assertEquals(String msg, String s1, String s2) {
     try {
       Assert.assertEquals(msg, s1, s2);
-    } catch (AssertionError afe) {
+    } catch (Throwable afe) {
       throw new RuntimeException(afe);
     }
   }
@@ -230,7 +231,7 @@ public abstract class SharedGWTTestCase extends GWTTestCase {
   public static void assertEquals(String msg, int i1, int i2) {
     try {
       Assert.assertEquals(msg, i1, i2);
-    } catch (AssertionError afe) {
+    } catch (Throwable afe) {
       throw new RuntimeException(afe);
     }
   }
@@ -238,7 +239,7 @@ public abstract class SharedGWTTestCase extends GWTTestCase {
   public static void assertEquals(String msg, long l1, long l2) {
     try {
       Assert.assertEquals(msg, l1, l2);
-    } catch (AssertionError afe) {
+    } catch (Throwable afe) {
       throw new RuntimeException(afe);
     }
   }
@@ -246,7 +247,7 @@ public abstract class SharedGWTTestCase extends GWTTestCase {
   public static void assertEquals(Object o1, Object o2) {
     try {
       Assert.assertEquals(o1, o2);
-    } catch (AssertionError afe) {
+    } catch (Throwable afe) {
       throw new RuntimeException(afe);
     }
   }
@@ -254,7 +255,7 @@ public abstract class SharedGWTTestCase extends GWTTestCase {
   public static void assertEquals(String msg, Object o1, Object o2) {
     try {
       Assert.assertEquals(msg, o1, o2);
-    } catch (AssertionError afe) {
+    } catch (Throwable afe) {
       throw new RuntimeException(afe);
     }
   }
@@ -262,7 +263,7 @@ public abstract class SharedGWTTestCase extends GWTTestCase {
   public static void assertNotNull(Object o) {
     try {
       Assert.assertNotNull(o);
-    } catch (AssertionError afe) {
+    } catch (Throwable afe) {
       throw new RuntimeException(afe);
     }
   }
@@ -270,7 +271,7 @@ public abstract class SharedGWTTestCase extends GWTTestCase {
   public static void fail(String msg) {
     try {
       Assert.fail(msg);
-    } catch (AssertionError afe) {
+    } catch (Throwable afe) {
       throw new RuntimeException(afe);
     }
   }

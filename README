@@ -1,0 +1,12 @@
+This is a library designed to facilitate sharing unit tests between Google Web
+Toolkit code and native Java code. It has features to make it easier to test
+asynchronous logic. To use these, you put a beginAsyncTestBlock() call at the
+start of your test method, and an endAsyncTestBlock() call at the end of your
+test method. Then, in an asynchronous callback, you invoke finished() when the
+callback you are testing has completed. The code will wait ten seconds for a
+call to finished(), and then fail with a TimeoutException.
+
+This library depends on the "Awaitility" async java library, which has already
+been included in the "lib" directory in jar form.
+
+Code is Creative Commons Zero (see COPYING).

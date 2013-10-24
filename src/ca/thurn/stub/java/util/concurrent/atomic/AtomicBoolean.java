@@ -14,4 +14,10 @@ public class AtomicBoolean {
 	public boolean get() {
 	  return value;
 	}
+	
+	public boolean getAndSet(boolean newValue) {
+	  boolean old = value;
+	  value = newValue;
+	  return old;
+	}
 }
