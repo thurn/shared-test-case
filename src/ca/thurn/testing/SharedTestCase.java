@@ -1,9 +1,8 @@
-package ca.thurn.gwt;
+package ca.thurn.testing;
 
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -23,20 +22,28 @@ import com.jayway.awaitility.Awaitility;
  * callback completes, invoke finished() to unblock the thread (on the server) or mark the test
  * finished (on the client).
  */
-public abstract class SharedGWTTestCase extends GWTTestCase {
+public abstract class SharedTestCase extends GWTTestCase {
 
   final AtomicBoolean finished = new AtomicBoolean(false);
   final AtomicInteger numFinishes = new AtomicInteger(0);
 
+  public static enum TestMode {
+    JAVA,
+    JAVASCRIPT,
+    OBJECTIVE_C
+  }
 
   private boolean didSetup = false;
 
+  @Override
+  public abstract String getModuleName();
+  
   public void injectScript(String url) {
     injectScript(url, null);
   }
   
   public void injectScript(String url, final Runnable onComplete) {
-    if (isServer()) {
+    if (getTestMode() != TestMode.JAVASCRIPT) {
       if (onComplete != null) {
         onComplete.run();
       }
@@ -86,8 +93,12 @@ public abstract class SharedGWTTestCase extends GWTTestCase {
     }
   }
 
-  public boolean isServer() {
-    return System.getProperty("test.mode", "client").equals("server");
+  public TestMode getTestMode() {
+    if (System.getProperty("test.mode", "client").equals("server")) {
+      return TestMode.JAVA;
+    } else {
+      return TestMode.JAVASCRIPT;
+    } // OBJECTIVE_C is a separate .java file.
   }
 
   /**

@@ -4,6 +4,6 @@
 <module>
   <inherits name='com.google.gwt.user.User'/>
   <inherits name="com.google.gwt.junit.JUnit" />
-  <source path='gwt' />
+  <source path='testing' />
   <super-source path='stub' />
 </module>
