@@ -26,6 +26,7 @@ public abstract class SharedTestCase extends GWTTestCase {
 
   final AtomicBoolean finished = new AtomicBoolean(false);
   final AtomicInteger numFinishes = new AtomicInteger(0);
+  final AtomicBoolean didSetUpTestCase = new AtomicBoolean(false);
 
   public static enum TestMode {
     JAVA,
@@ -33,13 +34,71 @@ public abstract class SharedTestCase extends GWTTestCase {
     OBJECTIVE_C
   }
 
-  private boolean didSetup = false;
-
   @Override
-  public abstract String getModuleName();
+  public String getModuleName() {
+    switch(getTestMode()) {
+	  case JAVA:
+	    return null;
+	  case JAVASCRIPT:
+		return getJavascriptModuleName();
+	  default:
+		throw new IllegalStateException("Unexpected TestMode");
+	}
+  }
   
-  public void injectScript(String url) {
-    injectScript(url, null);
+  public abstract String getJavascriptModuleName();
+  
+  static class OneTimeRunnable implements Runnable {
+    private final AtomicBoolean ran = new AtomicBoolean(false);
+    private final Runnable runnable;
+    
+    OneTimeRunnable(Runnable runnable) {
+      this.runnable = runnable;
+    }
+    
+    @Override
+    public void run() {
+      if (ran.getAndSet(true) == false) {
+        runnable.run();
+      }
+    }
+  }
+  
+  public final void gwtSetUp() {
+    beginAsyncTestBlock();
+    final Runnable runFinished = new OneTimeRunnable(new Runnable() {
+      @Override
+      public void run() {
+        finished();
+      }});
+    sharedSetUpTestCase(runFinished);    
+    if (didSetUpTestCase.getAndSet(true) == false) {
+      Runnable runSetUp = new OneTimeRunnable(new Runnable() {
+        @Override
+        public void run() {
+          sharedSetUp(runFinished);
+        }
+      });
+      sharedSetUpTestCase(runSetUp);
+    } else {
+      sharedSetUp(runFinished);
+    }
+    endAsyncTestBlock();
+  }
+  
+  public final void gwtTearDown() {
+    sharedTearDown();
+  }
+  
+  public void sharedSetUpTestCase(Runnable done) {
+    done.run();
+  }
+  
+  public void sharedSetUp(Runnable done) {
+    done.run();
+  }
+  
+  public void sharedTearDown() {
   }
   
   public void injectScript(String url, final Runnable onComplete) {
@@ -48,30 +107,20 @@ public abstract class SharedTestCase extends GWTTestCase {
         onComplete.run();
       }
     } else { 
-      delayTestFinish(10000);
-      if (didSetup == false) {
-        ScriptInjector.fromUrl(url)
-        .setCallback(new Callback<Void, Exception>() {
-          @Override
-          public void onFailure(Exception reason) {
-            throw new RuntimeException(reason);
-          }
-
-          @Override
-          public void onSuccess(Void result) {
-            didSetup = true;
-            finishTest();
-            if (onComplete != null) {
-              onComplete.run();
-            }
-          }
-        }).inject();
-      } else {
-        finishTest();
-        if (onComplete != null) {
-          onComplete.run();
+      ScriptInjector.fromUrl(url)
+      .setCallback(new Callback<Void, Exception>() {
+        @Override
+        public void onFailure(Exception reason) {
+          throw new RuntimeException(reason);
         }
-      }
+
+        @Override
+        public void onSuccess(Void result) {
+          if (onComplete != null) {
+            onComplete.run();
+          }
+        }
+      }).inject();
     }
   }
   
