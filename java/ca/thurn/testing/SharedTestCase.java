@@ -7,22 +7,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.Assert;
+import junit.framework.TestCase;
 
-import com.google.gwt.core.client.Callback;
-import com.google.gwt.core.client.ScriptInjector;
-import com.google.gwt.junit.client.GWTTestCase;
-import com.google.gwt.user.client.Timer;
 import com.jayway.awaitility.Awaitility;
 
-/**
- * A subclass for sharing asynchronous GWTTestCase tests between client-side and server-side code.
- * 
- * Usage: At the end of your asynchronous test's main body, invoke awaitFinished(). On the server,
- * this blocks the test thread. On the client, this sets up a listener. When your asynchronous
- * callback completes, invoke finished() to unblock the thread (on the server) or mark the test
- * finished (on the client).
- */
-public abstract class SharedTestCase extends GWTTestCase {
+public abstract class SharedTestCase extends TestCase {
 
   final AtomicBoolean finished = new AtomicBoolean(false);
   final AtomicInteger numFinishes = new AtomicInteger(0);
@@ -33,20 +22,6 @@ public abstract class SharedTestCase extends GWTTestCase {
     JAVASCRIPT,
     OBJECTIVE_C
   }
-
-  @Override
-  public String getModuleName() {
-    switch(getTestMode()) {
-	  case JAVA:
-	    return null;
-	  case JAVASCRIPT:
-		return getJavascriptModuleName();
-	  default:
-		throw new IllegalStateException("Unexpected TestMode");
-	}
-  }
-  
-  public abstract String getJavascriptModuleName();
   
   static class OneTimeRunnable implements Runnable {
     private final AtomicBoolean ran = new AtomicBoolean(false);
@@ -64,14 +39,62 @@ public abstract class SharedTestCase extends GWTTestCase {
     }
   }
   
-  public final void gwtSetUp() {
+  public static class BooleanReference {
+    private AtomicBoolean value;
+    
+    public BooleanReference(boolean value) {
+      this.value = new AtomicBoolean(value);
+    }
+    
+    public void set(boolean newValue) {
+      value.set(newValue);
+    }
+    
+    public boolean get() {
+      return value.get();
+    }
+    
+    public boolean getAndSet(boolean newValue) {
+      return value.getAndSet(newValue);
+    }
+  }
+  
+  public static class IntegerReference {
+    private AtomicInteger value;
+    
+    public IntegerReference(int value) {
+      this.value = new AtomicInteger(value);
+    }
+    
+    public void set(int newValue) {
+      value.set(newValue);
+    }
+    
+    public int get() {
+      return value.get();
+    }
+    
+    public int getAndSet(int newValue) {
+      return value.getAndSet(newValue);
+    }
+    
+    public int getAndIncrement() {
+      return value.getAndIncrement();
+    }
+  }
+  
+  public String getJavascriptModuleName() {
+    throw new RuntimeException("No Javascript module name supplied");
+  }
+  
+  @Override
+  public final void setUp() {
     beginAsyncTestBlock();
     final Runnable runFinished = new OneTimeRunnable(new Runnable() {
       @Override
       public void run() {
         finished();
       }});
-    sharedSetUpTestCase(runFinished);    
     if (didSetUpTestCase.getAndSet(true) == false) {
       Runnable runSetUp = new OneTimeRunnable(new Runnable() {
         @Override
@@ -86,7 +109,8 @@ public abstract class SharedTestCase extends GWTTestCase {
     endAsyncTestBlock();
   }
   
-  public final void gwtTearDown() {
+  @Override
+  public final void tearDown() {
     sharedTearDown();
   }
   
@@ -102,25 +126,8 @@ public abstract class SharedTestCase extends GWTTestCase {
   }
   
   public void injectScript(String url, final Runnable onComplete) {
-    if (getTestMode() != TestMode.JAVASCRIPT) {
-      if (onComplete != null) {
-        onComplete.run();
-      }
-    } else { 
-      ScriptInjector.fromUrl(url)
-      .setCallback(new Callback<Void, Exception>() {
-        @Override
-        public void onFailure(Exception reason) {
-          throw new RuntimeException(reason);
-        }
-
-        @Override
-        public void onSuccess(Void result) {
-          if (onComplete != null) {
-            onComplete.run();
-          }
-        }
-      }).inject();
+    if (onComplete != null) {
+      onComplete.run();
     }
   }
   
@@ -130,64 +137,39 @@ public abstract class SharedTestCase extends GWTTestCase {
 
   public synchronized void beginAsyncTestBlock(int numFinishesExpected) {
     numFinishes.set(numFinishesExpected);
-    if (!isPureJava()) {
-      delayTestFinish(10000);
-    }
   }
 
   public void endAsyncTestBlock() {
-    if (isPureJava()) {
-      Awaitility.await("Waiting for call to finished()").untilTrue(finished);
-      finished.set(false);
-    }
+    Awaitility.await("Waiting for call to finished()").untilTrue(finished);
+    finished.set(false);
   }
 
   public TestMode getTestMode() {
-    if (System.getProperty("test.mode", "client").equals("server")) {
-      return TestMode.JAVA;
-    } else {
-      return TestMode.JAVASCRIPT;
-    } // OBJECTIVE_C is a separate .java file.
+    return TestMode.JAVA;
   }
 
   /**
-   * Indicates that your test, where you previously called awaitFinished(), is done executing.
+   * Indicates that your test, where you previously called beginAsyncTestBlock(), is done
+   * executing.
    */
   public synchronized void finished() {
     numFinishes.getAndDecrement();
     if (numFinishes.get() <= 0) {
-      if (isPureJava()) {
-        finished.set(true);
-      } else {
-        finishTest();
-      }
+      finished.set(true);
     }
   }
 
   public void schedule(int delayMillis, final Runnable runnable) {
-    if (isPureJava()) {
-      new java.util.Timer().schedule(new TimerTask() {
-        @Override
-        public void run() {
-          runnable.run();
-        }
-      }, delayMillis);
-    } else {
-      (new Timer() {
-        @Override
-        public void run() {
-          runnable.run();
-        }
-      }).schedule(delayMillis);
-    }
+    new java.util.Timer().schedule(new TimerTask() {
+      @Override
+      public void run() {
+        runnable.run();
+      }
+    }, delayMillis);
   }
 
   public int randomInteger() {
-    if (isPureJava()) {
-      return new java.util.Random().nextInt();
-    } else {
-      return com.google.gwt.user.client.Random.nextInt();
-    }
+    return new java.util.Random().nextInt();
   }
 
   public void assertDeepEquals(Object o1, Object o2) {
@@ -218,6 +200,8 @@ public abstract class SharedTestCase extends GWTTestCase {
       assertEquals(msg, o1, o2);
     }
   }
+  
+  
   
   // NOTE(dthurn): These static overrides are needed because Awaitility
   // currently doesn't propagate Errors to the main thread, just Exceptions.

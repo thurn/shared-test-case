@@ -1,12 +1,29 @@
-This is a library designed to facilitate sharing unit tests between Google Web
-Toolkit code and native Java code. It has features to make it easier to test
+This is a libray designed to facilitate sharing unit tests between Java code,
+Google Web Toolkit code, and Objective C code. It has features to make it easier to test
 asynchronous logic. To use these, you put a beginAsyncTestBlock() call at the
 start of your test method, and an endAsyncTestBlock() call at the end of your
 test method. Then, in an asynchronous callback, you invoke finished() when the
 callback you are testing has completed. The code will wait ten seconds for a
-call to finished(), and then fail with a TimeoutException.
+call to finished(), and then fail with a TimeoutException if one was not made.
 
 This library depends on the "Awaitility" async java library, which has already
-been included in the "lib" directory in jar form.
+been included in the "lib" directory in jar form. In order to use the library,
+you need to include awaitility and its dependencies on your java build path,
+along with shared-test-case-java.jar.
+
+# Building the Libraries #
+
+## Java ##
+
+To generate the Java jarfile from Eclipse, use the java/ directory as a source
+folder and remove the gwt/ directory from your build path. You can then export
+a Jar via File > Export, selecting only the contents of the java/ directory.
+
+## GWT ##
+
+To generate the GWT jar, you need to instead use the gwt/ directory as a source
+folder and remove the java/ directory from your build path. You can then export
+its contents via File > Export, selecting the contents of the gwt/ directory.
+You need to include source in the GWT jar for it to work.
 
 Code is Creative Commons Zero (see COPYING).
