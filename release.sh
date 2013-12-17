@@ -6,4 +6,4 @@ then
 fi
 jar cf shared-test-case-$1.jar java/
 jar cf shared-test-case-gwt-$1.jar gwt/
-zip -r shared-test-case-objc-$1.zip objc/
+zip -r shared-test-case-objc-$1.zip shared-test-case-objc/
